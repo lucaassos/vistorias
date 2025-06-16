@@ -15,54 +15,59 @@
         .container {
             max-width: 960px;
         }
-        .card {
-            transition: box-shadow .3s;
-        }
-        .card:hover {
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
-        }
-        .btn-danger {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        #results-container .card-header {
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
 
     <header class="bg-primary text-white text-center p-4 mb-4">
         <h1><i class="bi bi-robot"></i> Analisador de Vistorias com IA</h1>
-        <p class="lead">Preencha os dados abaixo para que a IA possa comparar as vistorias.</p>
+        <p class="lead">Cole os textos completos das vistorias e contestações para a IA analisar.</p>
     </header>
 
     <main class="container">
         <form id="vistoria-form">
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Identificação do Contrato</h5>
                     <div class="mb-3">
                         <label for="id_contrato" class="form-label">Contrato ou ID do Imóvel</label>
                         <input type="text" class="form-control" id="id_contrato" placeholder="Ex: CTR-2025-01" required>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="vistoriaEntrada" class="form-label"><strong>Vistoria de ENTRADA Completa</strong></label>
+                            <textarea class="form-control" id="vistoriaEntrada" rows="10" placeholder="Cole aqui o texto completo da vistoria de entrada..."></textarea>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="contestacaoEntrada" class="form-label"><strong>Contestação de ENTRADA</strong></label>
+                            <textarea class="form-control" id="contestacaoEntrada" rows="10" placeholder="Cole aqui a contestação do locatário, se houver..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+
+                    <div class="row">
+                         <div class="col-md-6 mb-3">
+                            <label for="vistoriaSaida" class="form-label"><strong>Vistoria de SAÍDA Completa</strong></label>
+                            <textarea class="form-control" id="vistoriaSaida" rows="10" placeholder="Cole aqui o texto completo da vistoria de saída..."></textarea>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="contestacaoSaida" class="form-label"><strong>Contestação de SAÍDA</strong></label>
+                            <textarea class="form-control" id="contestacaoSaida" rows="10" placeholder="Cole aqui a contestação do locatário na saída, se houver..."></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="itens-container">
-                </div>
-
-            <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
-                <button type="button" id="add-item-btn" class="btn btn-secondary"><i class="bi bi-plus-circle"></i> Adicionar Item</button>
-                <button type="submit" id="analisar-btn" class="btn btn-primary"><i class="bi bi-send"></i> Analisar com IA</button>
+            <div class="text-center mb-4">
+                <button type="submit" id="analisar-btn" class="btn btn-primary btn-lg"><i class="bi bi-send"></i> Analisar com IA</button>
             </div>
         </form>
 
         <hr>
 
         <div id="results-container" class="mt-4">
-            <h2 class="text-center mb-3">Análise da IA</h2>
+            <h2 class="text-center mb-3">Relatório de Divergências da IA</h2>
             <div id="results-placeholder" class="text-center text-muted">
                 <p><i class="bi bi-card-text" style="font-size: 2rem;"></i></p>
                 <p>O resultado da análise aparecerá aqui após o envio.</p>
@@ -76,146 +81,50 @@
         </div>
     </main>
 
-    <template id="item-template">
-        <div class="card mb-3 vistoria-item position-relative">
-            <div class="card-body">
-                <button type="button" class="btn btn-danger btn-sm remove-item-btn"><i class="bi bi-trash"></i></button>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Ambiente</label>
-                        <input type="text" class="form-control ambiente" placeholder="Ex: Sala de Estar" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Item</label>
-                        <input type="text" class="form-control item" placeholder="Ex: Parede Direita" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">Vistoria de <strong>Entrada</strong></label>
-                        <textarea class="form-control vistoria-entrada" rows="3" required></textarea>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">Contestação de <strong>Entrada</strong></label>
-                        <textarea class="form-control contestacao-entrada" rows="3"></textarea>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">Vistoria de <strong>Saída</strong></label>
-                        <textarea class="form-control vistoria-saida" rows="3" required></textarea>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">Contestação de <strong>Saída</strong></label>
-                        <textarea class="form-control contestacao-saida" rows="3"></textarea>
-                    </div>
-                </div>
-                 <div class="mb-2">
-                        <label class="form-label">Fotos/Evidências</label>
-                        <input class="form-control" type="file" multiple>
-                 </div>
-            </div>
-        </div>
-    </template>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const addItemBtn = document.getElementById('add-item-btn');
-            const itensContainer = document.getElementById('itens-container');
-            const itemTemplate = document.getElementById('item-template');
             const form = document.getElementById('vistoria-form');
             const resultsContainer = document.getElementById('results-container');
             const resultsPlaceholder = document.getElementById('results-placeholder');
             const loadingSpinner = document.getElementById('loading-spinner');
             const analisarBtn = document.getElementById('analisar-btn');
 
-            // Adiciona o primeiro item ao carregar a página
-            addItem();
-
-            addItemBtn.addEventListener('click', addItem);
-
-            function addItem() {
-                const clone = itemTemplate.content.cloneNode(true);
-                clone.querySelector('.remove-item-btn').addEventListener('click', function(e) {
-                    e.target.closest('.vistoria-item').remove();
-                });
-                itensContainer.appendChild(clone);
-            }
-
             form.addEventListener('submit', async function(event) {
                 event.preventDefault();
 
-                // 1. PREPARAR DADOS PARA ENVIO
-                const idContrato = document.getElementById('id_contrato').value;
-                const itens = [];
-                document.querySelectorAll('.vistoria-item').forEach(itemEl => {
-                    itens.push({
-                        ambiente: itemEl.querySelector('.ambiente').value,
-                        item: itemEl.querySelector('.item').value,
-                        vistoriaEntrada: itemEl.querySelector('.vistoria-entrada').value,
-                        contestacaoEntrada: itemEl.querySelector('.contestacao-entrada').value,
-                        vistoriaSaida: itemEl.querySelector('.vistoria-saida').value,
-                        contestacaoSaida: itemEl.querySelector('.contestacao-saida').value,
-                    });
-                });
-                
                 const payload = {
-                    id_contrato: idContrato,
-                    itens: itens
+                    id_contrato: document.getElementById('id_contrato').value,
+                    vistoriaEntrada: document.getElementById('vistoriaEntrada').value,
+                    contestacaoEntrada: document.getElementById('contestacaoEntrada').value,
+                    vistoriaSaida: document.getElementById('vistoriaSaida').value,
+                    contestacaoSaida: document.getElementById('contestacaoSaida').value
                 };
 
-                // 2. MOSTRAR FEEDBACK VISUAL
                 resultsPlaceholder.classList.add('d-none');
                 resultsContainer.querySelectorAll('.analysis-card').forEach(c => c.remove());
                 loadingSpinner.classList.remove('d-none');
                 analisarBtn.disabled = true;
                 analisarBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analisando...`;
 
-                // 3. ENVIAR DADOS PARA O WEBHOOK DO MAKE.COM
-                // !!! IMPORTANTE: SUBSTITUA PELA URL DO SEU WEBHOOK !!!
                 const makeWebhookUrl = 'https://hook.us2.make.com/5bivdrtuc9317mbegce7jv2cc89bhzkf'; 
 
                 try {
-                    // Simulação de chamada de API - Remova este bloco e descomente o fetch abaixo
-                    // await new Promise(resolve => setTimeout(resolve, 3000)); // Simula espera de 3s
-                    // const mockResponse = {
-                    //     "analises": [
-                    //         {
-                    //             "item_analisado": "Parede Direita", "ambiente": "Sala de Estar",
-                    //             "estado_inicial_consolidado": "Pintura nova, cor branco gelo, com um pequeno risco de 2cm perto do rodapé direito, conforme contestado pelo locatário.",
-                    //             "danos_identificados_na_saida": [
-                    //                 {"dano": "Arranhão de 10cm no centro da parede.", "justificativa_locatario": "Não reconheço este dano.", "analise_responsabilidade": "Dano causado pelo locatário. Ausente na entrada e sem justificativa plausível."},
-                    //                 {"dano": "3 furos de prego.", "justificativa_locatario": "Furos referentes a quadros autorizados.", "analise_responsabilidade": "Justificativa plausível. Verificar contrato sobre a necessidade de fechar os furos."}
-                    //             ],
-                    //             "resumo_geral": "Recomenda-se o reparo do arranhão por conta do locatário. A situação dos furos depende do acordo contratual sobre devolução."
-                    //         }
-                    //     ]
-                    // };
-                    // const data = mockResponse;
-                    
-                    // DESCOMENTE AS LINHAS ABAIXO PARA USAR COM SEU WEBHOOK REAL
-                     const response = await fetch(makeWebhookUrl, {
+                    const response = await fetch(makeWebhookUrl, {
                          method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json',
-                         },
+                         headers: { 'Content-Type': 'application/json' },
                          body: JSON.stringify(payload),
                      });
 
-                     if (!response.ok) {
-                         throw new Error(`Erro na rede: ${response.statusText}`);
-                     }
+                     if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
+                     
                      const data = await response.json();
-                    
-                    // 4. EXIBIR OS RESULTADOS
-                    displayResults(data);
+                     displayResults(data);
 
                 } catch (error) {
                     console.error('Erro ao analisar vistoria:', error);
                     resultsPlaceholder.classList.remove('d-none');
                     resultsPlaceholder.innerHTML = `<p class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Ocorreu um erro ao conectar com a IA. Verifique o console para mais detalhes.</p>`;
                 } finally {
-                    // 5. RESTAURAR A INTERFACE
                     loadingSpinner.classList.add('d-none');
                     analisarBtn.disabled = false;
                     analisarBtn.innerHTML = `<i class="bi bi-send"></i> Analisar com IA`;
@@ -223,52 +132,37 @@
             });
 
             function displayResults(data) {
-                // Limpa quaisquer resultados anteriores
                 resultsContainer.querySelectorAll('.analysis-card').forEach(c => c.remove());
                 resultsPlaceholder.classList.add('d-none');
 
-                if (data && data.analises) {
+                if (data && data.analises && data.analises.length > 0) {
+                     // Adiciona o resumo geral no topo, se existir
+                    if (data.resumo_geral) {
+                        const summaryCard = document.createElement('div');
+                        summaryCard.className = 'alert alert-success analysis-card mb-4';
+                        summaryCard.innerHTML = `<h4 class="alert-heading">Resumo Geral da Análise</h4><p>${data.resumo_geral}</p>`;
+                        resultsContainer.appendChild(summaryCard);
+                    }
+
                     data.analises.forEach(analise => {
                         const card = document.createElement('div');
                         card.className = 'card analysis-card mb-3';
 
-                        let danosHtml = '';
-                        if(analise.danos_identificados_na_saida.length > 0) {
-                            danosHtml = analise.danos_identificados_na_saida.map(dano => `
-                                <li class="list-group-item">
-                                    <strong>Dano:</strong> ${dano.dano}<br>
-                                    <strong>Justificativa:</strong> ${dano.justificativa_locatario || 'Nenhuma'}<br>
-                                    <strong class="text-primary">Análise IA:</strong> ${dano.analise_responsabilidade}
-                                </li>
-                            `).join('');
-                        } else {
-                            danosHtml = '<li class="list-group-item">Nenhum novo dano identificado.</li>';
-                        }
-
                         card.innerHTML = `
                             <div class="card-header bg-light">
-                                ${analise.ambiente} - ${analise.item_analisado}
+                                <i class="bi bi-geo-alt-fill"></i> <strong>Ambiente:</strong> ${analise.ambiente} | <i class="bi bi-box-seam"></i> <strong>Item:</strong> ${analise.item_identificado}
                             </div>
-                            <div class="card-body">
-                                <h6 class="card-subtitle mb-2 text-muted">Estado Inicial Consolidado</h6>
-                                <p class="card-text">${analise.estado_inicial_consolidado}</p>
-                                
-                                <h6 class="card-subtitle mt-3 mb-2 text-muted">Danos Identificados na Saída</h6>
-                                <ul class="list-group list-group-flush">
-                                    ${danosHtml}
-                                </ul>
-
-                                <div class="alert alert-info mt-3" role="alert">
-                                    <h5 class="alert-heading">Resumo e Recomendação da IA</h5>
-                                    <p>${analise.resumo_geral}</p>
-                                </div>
-                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>Estado na Entrada:</strong> ${analise.estado_entrada}</li>
+                                <li class="list-group-item"><strong>Estado na Saída:</strong> ${analise.estado_saida}</li>
+                                <li class="list-group-item list-group-item-warning"><strong><i class="bi bi-search"></i> Veredito da IA:</strong> ${analise.analise_divergencia}</li>
+                            </ul>
                         `;
                         resultsContainer.appendChild(card);
                     });
                 } else {
                     resultsPlaceholder.classList.remove('d-none');
-                    resultsPlaceholder.innerHTML = `<p class="text-warning"><i class="bi bi-question-circle-fill"></i> A IA retornou uma resposta em um formato inesperado.</p>`;
+                    resultsPlaceholder.innerHTML = `<div class="alert alert-secondary"><i class="bi bi-check-circle-fill"></i> Nenhuma divergência que necessite de reparo foi encontrada pela IA com base nos textos fornecidos.</div>`;
                 }
             }
         });
